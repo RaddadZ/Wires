@@ -1,0 +1,26 @@
+﻿@model ListViewModel
+@{
+    ViewData["Title"] = "Latest Articles List";
+    ViewData["Controller"] = "Panel";
+    ViewData["Action"] = "List";
+}
+<h2 class="marginBottom15">@ViewData["Title"]</h2>
+<ul class="row list-unstyled">
+    @{
+        foreach (var item in Model.LatestArticles)
+        {
+            <li style="height:480px;" class="col-sm-6 col-md-4">
+                <div class="thumbnail">
+                    <img src="@item.Thumbnail" alt="...">
+                    <div class="caption">
+                        <small class="pull-left">@item.PublishedDate.ToString("dd/MM/yyyy hh:mm tt")</small>
+                        <a asp-controller="@ViewData["Controller"]" asp-action="NewExamForArticle" asp-route-id="@item.Id"><h3>@item.Title</h3></a>
+                        <p>@item.Description</p>
+                        <p><a asp-controller="@ViewData["Controller"]" asp-action="NewExamForArticle" asp-route-id="@item.Id" class="btn btn-primary" role="button">new exam</a><a href="@item.Link" class="btn btn-default pull-right" role="button">original site page</a></p>
+                    </div>
+                </div>
+            </li>
+        }
+    }
+</ul>
+

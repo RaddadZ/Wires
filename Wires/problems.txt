@@ -1,0 +1,1 @@
+﻿1. some articles are desgined in html diffrentlly than others, depends on the author.
