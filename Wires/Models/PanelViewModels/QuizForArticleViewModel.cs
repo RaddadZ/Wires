@@ -6,9 +6,10 @@ using Wires.Entities;
 
 namespace Wires.Models.PanelViewModels
 {
-    public class NewExamForArticleViewModel
+    public class QuizForArticleViewModel
     {
         public Article Article { get; set; }
+        public Quiz Quiz { get; set; }
         public List<Question> Questions { get; set; } = new List<Question>();
     }
 }

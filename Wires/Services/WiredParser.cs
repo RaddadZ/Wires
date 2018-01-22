@@ -67,7 +67,16 @@ namespace Wires.Services
         public async Task<IEnumerable<Article>> GetLatestArticles()
         {
             HttpClient hc = new HttpClient();
-            HttpResponseMessage result = await hc.GetAsync("https://www.wired.com/most-recent");
+            HttpResponseMessage result = null;
+            try
+            {
+                result = await hc.GetAsync("https://www.wired.com/most-recent");
+            }
+            catch(Exception e)
+            {
+                // log
+                return new List<Article>();
+            }
             Stream stream = await result.Content.ReadAsStreamAsync();
             HtmlDocument html = new HtmlDocument();
             html.Load(stream);

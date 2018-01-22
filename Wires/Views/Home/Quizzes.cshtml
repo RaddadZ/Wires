@@ -1,0 +1,34 @@
+﻿@model IEnumerable<Quiz>
+@{
+    ViewData["Title"] = "Latest Quizzes";
+    ViewData["Controller"] = "Home";
+    ViewData["Action"] = "Quizzes";
+    //string returnUrl = $"/{ViewData["Controller"]}/{ViewData["Action"]}";
+}
+<div class="row marginBottom15">
+    <div class="col-xs-6 text-left"><h2>@ViewData["Title"]</h2></div>
+</div>
+<hr />
+<ul class="row list-unstyled">
+    @{
+        foreach (var item in Model)
+        {
+            <li style="height:480px;" class="col-sm-6 col-md-4">
+                <div class="thumbnail">
+                    <img src="@item.Article.Thumbnail" alt="...">
+                    <div class="caption">
+                        <small class="pull-left">Quiz created at: @item.CreatedDate.ToString("dd/MM/yyyy hh:mm tt")</small>
+                        <small class="pull-left">Article published at: @item.Article.PublishedDate.ToString("dd/MM/yyyy hh:mm tt")</small>
+                        <hr />
+                        <a asp-controller="@ViewData["Controller"]" asp-action="ReadQuiz" asp-route-id="@item.Id"><h3>@item.Article.Title</h3></a>
+                        <p>@item.Article.Description</p>
+                        <p>
+                        <a asp-controller="@ViewData["Controller"]" asp-action="ReadQuiz" asp-route-id="@item.Id" role="button">read</a>
+                        </p>
+                    </div>
+                </div>
+            </li>
+        }
+    }
+</ul>
+

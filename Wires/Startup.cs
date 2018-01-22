@@ -35,7 +35,6 @@ namespace Wires
                 .AddDefaultTokenProviders();
             
             // Add application services.
-            services.AddTransient<IEmailSender, EmailSender>();
             services.AddTransient<IWiredParser, WiredParser>();
             services.AddTransient<IAppRepository, AppRepository>();
 

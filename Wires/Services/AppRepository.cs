@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -75,6 +76,24 @@ namespace Wires.Services
             return query.ToList();
         }
 
+        public IEnumerable<Article> GetArticlesWithQuizzes()
+        {
+            var qr = from quiz in _context.Quizzes
+                     join article in _context.Articles on quiz.ArticleId equals article.Id
+                     orderby article.PublishedDate descending
+                     select article;
+            var x = qr.ToList();
+            var qry = _context.Articles
+                .Join(_context.Quizzes,
+                article => article.Id,
+                quiz => quiz.ArticleId,
+                (article, quiz) => article
+                ).OrderByDescending(article => article.PublishedDate);
+            var y = qry.ToList();
+            return qry.ToList();
+        }
+
+
         public Question GetQuestion(Guid id)
         {
             return _context.Questions.Where(a => a.Id == id).FirstOrDefault();
@@ -85,14 +104,28 @@ namespace Wires.Services
             return _context.Questions.ToList();
         }
 
+        public IEnumerable<Question> GetQuestionsForQuiz(Guid id)
+        {
+            return _context.Questions.Where(q => q.QuizId == id).ToList();
+        }
+
         public Quiz GetQuiz(Guid id)
         {
             return _context.Quizzes.Where(a => a.Id == id).FirstOrDefault();
         }
-
+        
         public IEnumerable<Quiz> GetQuizzes()
         {
             return _context.Quizzes.ToList();
+        }
+        public IEnumerable<Quiz> GetQuizzesIncludeArticles()
+        {
+            return _context.Quizzes.Include(q => q.Article).OrderByDescending(q => q.CreatedDate).ToList();
+        }
+        public Quiz GetQuizForArticle(Guid id)
+        {
+            return _context.Quizzes
+                .SingleOrDefault(q => q.ArticleId == id);
         }
 
         public bool QuestionExists(Guid id)

@@ -25,10 +25,12 @@ namespace Wires.Controllers
             _wiredParser = wiredParser;
             _configuration = configuration;
         }
-
+        
         [HttpGet]
         public async Task<ActionResult> List()
         {
+            
+            ViewData["ReturnUrl"] = $"/{RouteData.Values["controller"].ToString()}/{RouteData.Values["action"].ToString()}";
             var b = await UpdateLatesetArticles() > 0;
             var x = _appRepository.GetArticles(_configuration.GetValue<int>("Defaults:LatestArticlesLimit",5)).ToList();
             ListViewModel vm = new ListViewModel()
@@ -40,30 +42,104 @@ namespace Wires.Controllers
         }
 
         [HttpGet]
-        [Route("{id}")]
-        public async Task<ActionResult> NewExamForArticle(Guid id)
+        public IActionResult QuizList()
         {
+            ViewData["ReturnUrl"] = $"/{RouteData.Values["controller"].ToString()}/{RouteData.Values["action"].ToString()}";
+            List<Quiz> quizList = _appRepository.GetQuizzes().ToList();
+            return View(quizList);
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        public IActionResult QuizForArticle(Guid id, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
             if (!_appRepository.ArticleExists(id))
                 return NotFound();
 
-            var q = new List<Question>();
+            var newQuestionsList = new List<Question>();
             for (int i = 0; i < _configuration.GetValue<int>("Defaults:QuestionsPerQuiz", 4); i++)
             {
-                q.Add(new Question());
+                newQuestionsList.Add(new Question());
             }
-            NewExamForArticleViewModel vm = new NewExamForArticleViewModel()
+
+            var prevQuiz = _appRepository.GetQuizForArticle(id);
+
+            QuizForArticleViewModel vm = new QuizForArticleViewModel()
             {
                 Article = _appRepository.GetArticle(id),
-                Questions = q
+                Quiz = prevQuiz,
+                Questions = prevQuiz == null ? newQuestionsList : _appRepository.GetQuestionsForQuiz(prevQuiz.Id).ToList()
             };
             
             return View(vm);
+        }
+
+        [HttpPost]
+        [Route("{id}")]
+        public IActionResult QuizForArticle(QuizForArticleViewModel vm, Guid id, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            if (!_appRepository.ArticleExists(id))
+                return NotFound();
+
+            if (vm == null)
+                return BadRequest();
+
+            if (_appRepository.GetQuizForArticle(id) != null)
+            {
+                ModelState.AddModelError("Quiz", "This article already has a quiz.");
+            }
+
+            foreach (var q in vm.Questions)
+            {
+                TryValidateModel(q);
+            }
+
+            if (ModelState.IsValid)
+            {
+                Quiz quiz = new Quiz()
+                {
+                    ArticleId = id,
+                    CreatedDate = DateTime.Now,
+                    Questions = vm.Questions
+                };
+
+                _appRepository.AddQuiz(quiz);
+
+                if (_appRepository.Save() < 0)
+                {
+                    throw new Exception("error saving quiz.");
+                }
+
+                return RedirectToLocal(returnUrl);
+            }
+            vm.Article = _appRepository.GetArticle(id);
+            return View(vm);
+        }
+
+        [HttpPost]
+        [Route("{id}")]
+        public IActionResult RemoveQuiz(Guid id, string returnUrl = null)
+        {
+            ViewData["ReturnUrl"] = returnUrl;
+            var quiz = _appRepository.GetQuiz(id);
+            if (quiz == null)
+                return NotFound();
+
+            _appRepository.DeleteQuiz(quiz);
+
+            if (_appRepository.Save() < 0)
+                throw new Exception("error deleting quiz.");
+
+            return RedirectToLocal(returnUrl);
         }
 
         private async Task<int> UpdateLatesetArticles()
         {
             // get links and descriptions
             List<Article> latestArticles = (await _wiredParser.GetLatestArticles()).ToList();
+            
             for (int i = 0; i < latestArticles.Count(); i++)
             {
                 if (_appRepository.ArticleExistsByLink(latestArticles[i].Link))
@@ -83,6 +159,17 @@ namespace Wires.Controllers
             }
             
             return _appRepository.Save();
+        }
+        private IActionResult RedirectToLocal(string returnUrl)
+        {
+            if (Url.IsLocalUrl(returnUrl))
+            {
+                return Redirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction(nameof(HomeController.Index), "Home");
+            }
         }
     }
 }

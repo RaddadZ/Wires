@@ -9,6 +9,7 @@ namespace Wires.Services
     public interface IAppRepository
     {
         IEnumerable<Article> GetArticles(int? limit);
+        IEnumerable<Article> GetArticlesWithQuizzes();
         Article GetArticle(Guid id);
         Article GetArticleByLink(string link);
         void AddArticle(Article article);
@@ -18,6 +19,8 @@ namespace Wires.Services
         bool ArticleExistsByLink(string link);
 
         IEnumerable<Quiz> GetQuizzes();
+        IEnumerable<Quiz> GetQuizzesIncludeArticles();
+        Quiz GetQuizForArticle(Guid id);
         Quiz GetQuiz(Guid id);
         void AddQuiz(Quiz quiz);
         void DeleteQuiz(Quiz quiz);
@@ -25,6 +28,7 @@ namespace Wires.Services
         bool QuizExists(Guid id);
 
         IEnumerable<Question> GetQuestions();
+        IEnumerable<Question> GetQuestionsForQuiz(Guid id);
         Question GetQuestion(Guid id);
         void AddQuestion(Question question);
         void DeleteQuestion(Question question);

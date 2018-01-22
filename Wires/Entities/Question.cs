@@ -13,14 +13,19 @@ namespace Wires.Entities
         [Key]
         public Guid Id { get; set; }
         [Required]
+        [MaxLength(1000)]
         public string Text { get; set; }
-        public string AnswerA { get; set; }
-        public string AnswerB { get; set; }
-        public string AnswerC { get; set; }
-        public string AnswerD { get; set; }
-        public AnswerCode RightAnswer { get; set; }
-
         [Required]
+        public string AnswerA { get; set; }
+        [Required]
+        public string AnswerB { get; set; }
+        [Required]
+        public string AnswerC { get; set; }
+        [Required]
+        public string AnswerD { get; set; }
+        [Required]
+        public AnswerCode RightAnswer { get; set; }
+        
         [ForeignKey("QuizId")]
         public Quiz Quiz { get; set; }
         public Guid QuizId { get; set; }
