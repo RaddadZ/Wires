@@ -23,7 +23,7 @@
                         <a asp-controller="@ViewData["Controller"]" asp-action="ReadQuiz" asp-route-id="@item.Id"><h3>@item.Article.Title</h3></a>
                         <p>@item.Article.Description</p>
                         <p>
-                        <a asp-controller="@ViewData["Controller"]" asp-action="ReadQuiz" asp-route-id="@item.Id" role="button">read</a>
+                        <a asp-controller="@ViewData["Controller"]" asp-action="ReadQuiz" asp-route-id="@item.Id" class="btn btn-primary" role="button">read</a>
                         </p>
                     </div>
                 </div>
