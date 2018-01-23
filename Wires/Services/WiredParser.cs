@@ -21,6 +21,7 @@ namespace Wires.Services
         {
             _configuration = configuration;
         }
+
         public async Task<Article> GetArticle(string link)
         {
             HttpClient hc = new HttpClient();
@@ -55,7 +56,6 @@ namespace Wires.Services
                 catch (Exception e)
                 {
                     article = null;
-                    //_logger.LogError("Parsing had an exception.");
                     // log it
                 }
 
@@ -81,8 +81,6 @@ namespace Wires.Services
             HtmlDocument html = new HtmlDocument();
             html.Load(stream);
 
-            //var html = new HtmlDocument();
-            //html.Load(new WebClient().DownloadString("https://www.wired.com/most-recent"));
             var root = html.DocumentNode;
             var articleList = root.Descendants()
                 .Where(n => n.GetAttributeValue("class", "")
@@ -110,7 +108,6 @@ namespace Wires.Services
                 }
                 catch (Exception e)
                 {
-                    //_logger.LogError("Parsing had an exception.");
                     // log it
                 }
             }

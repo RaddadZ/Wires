@@ -6,7 +6,6 @@
     ViewData["Action"] = "ReadQuiz";
 }
 
-
 <div class="row marginAll15">
     <h5 class="col-xs-6 text-left">Author: <strong>@Model.Article.Author</strong></h5>
     <h5 class="col-xs-6 text-right">Published: <strong>@Model.Article.PublishedDate.ToString("dd.MM.yyyy hh:mm tt")</strong></h5>
@@ -28,23 +27,29 @@
             {
                 <div id="@Model.Questions[i].Id" class="col-lg-6">
                     <h4>@(i+1)) @Model.Questions[i].Text</h4>
-                    <div class="form-group col-lg-12">
-                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.A) /> @Wires.Helpers.AnswerCode.A.GetDisplayName()) @Model.Questions[i].AnswerA
+                    <small class="errorMessage"></small>
+                    <div class="col-lg-12">
+                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.A) />
+                        @Wires.Helpers.AnswerCode.A.GetDisplayName()) @Model.Questions[i].AnswerA
                     </div>
                     <div class="col-lg-12">
-                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.B)  /> @Wires.Helpers.AnswerCode.B.GetDisplayName()) @Model.Questions[i].AnswerB
+                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.B)  />
+                        @Wires.Helpers.AnswerCode.B.GetDisplayName()) @Model.Questions[i].AnswerB
                     </div>
                     <div class="col-lg-12">
-                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.C)  /> @Wires.Helpers.AnswerCode.C.GetDisplayName()) @Model.Questions[i].AnswerC
+                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.C)  /> 
+                        @Wires.Helpers.AnswerCode.C.GetDisplayName()) @Model.Questions[i].AnswerC
                     </div>
                     <div class="col-lg-12">
-                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.D)  /> @Wires.Helpers.AnswerCode.D.GetDisplayName()) @Model.Questions[i].AnswerD
+                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.D)  /> 
+                        @Wires.Helpers.AnswerCode.D.GetDisplayName()) @Model.Questions[i].AnswerD
                     </div>
                 </div>
             }
         </div>
         <hr />
         <div class="form-group">
+            <label id="errorMessage"></label>
             <button onclick="CheckAnswers()" type="submit" class="btn btn-lg btn-primary">Check Answers</button>
         </div>
 </div>
@@ -55,11 +60,20 @@
             var quizId = $("#quiz .row").attr('id');
             var results = [];
             $(`#${quizId} > div`).each(function () {
+                var givenAnswer = $(this).find("input[type='radio']:checked").val();
+                if (givenAnswer == null) {
+                    $(this).find(".errorMessage").text("Please answer all questions");
+                    return;
+                } else {
+                    $(this).find(".errorMessage").text("");
+                }
                 results.push({
                     QuestionId: $(this).attr('id'),
-                    GivenAnswer: $(this).find("input[type='radio']:checked").val()
+                    GivenAnswer: givenAnswer
                 })
             })
+            if (results.length < $(`#${quizId} > div`).length)
+                return null;
             var dto = {
                 QuizId: quizId,
                 Results: results
@@ -67,25 +81,30 @@
             return dto;
         }
         function CheckAnswers() {
+            var re = GetQuizResultDto();
+            if (re == null) {
+                return;
+            }
             $.ajax({
                 type: 'Post',
                 url: '/api/QuizData/CheckAnswers',
-                data: GetQuizResultDto()
+                data: re
             }).done(function (res) {
-                //console.log(res);
-                //console.log(res.results);
                 res.results.forEach(function (item, index) {
+                    var allopt = $(`#${item.questionId}`).find(`:radio`).parent();
                     var wrongOpt = $(`#${item.questionId}`).find(`:radio[value=${item.givenAnswer}]`).parent();
                     var opt = $(`#${item.questionId}`).find(`:radio[value=${item.rightAnswer}]`).parent();
+                    allopt.removeAttr("style");
                     wrongOpt.css({
-                        "color": "red",
-                        "font-weight": "bold"
+                        "background": "red",
+                        "font-weight": "bold",
+                        "color":"white"
                     });
                     opt.css({
-                        "color": "green",
-                        "font-weight": "bold"
+                        "background": "green",
+                        "font-weight": "bold",
+                        "color":"white"
                     });
-                    opt.append("*")
                 })
             }).fail(function (a, b, c) {
                 console.log(c);

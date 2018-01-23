@@ -5,16 +5,19 @@
     ViewData["Action"] = "List";
     //string returnUrl = $"/{ViewData["Controller"]}/{ViewData["Action"]}";
 }
+
 <div class="row marginBottom15">
+
     <div class="col-xs-6 text-left"><h2>@ViewData["Title"]</h2></div>
     <div class="col-xs-6 text-right"><h3><a asp-action="QuizList">List All Quizzes</a></h3></div>
 </div>
 <hr />
 <ul class="row list-unstyled">
     @{
+        var i = 0;
         foreach (var item in Model.LatestArticles)
         {
-            <li style="height:480px;" class="col-sm-6 col-md-4">
+            <li style="height:480px; @(i>4?"opacity: 0.3;":"")" class="col-sm-6 col-md-4">
                 <div class="thumbnail">
                     <img src="@item.Thumbnail" alt="...">
                     <div class="caption">
@@ -22,12 +25,13 @@
                         <a asp-controller="@ViewData["Controller"]" asp-action="QuizForArticle" asp-route-id="@item.Id" asp-route-returnurl="@ViewData["ReturnUrl"]"><h3>@item.Title</h3></a>
                         <p>@item.Description</p>
                         <p>
-                        <a asp-controller="@ViewData["Controller"]" asp-action="QuizForArticle" asp-route-id="@item.Id" asp-route-returnurl="@ViewData["ReturnUrl"]" role="button">new exam</a>
+                        <a class="btn btn-primary" asp-controller="@ViewData["Controller"]" asp-action="QuizForArticle" asp-route-id="@item.Id" asp-route-returnurl="@ViewData["ReturnUrl"]" role="button">new exam</a>
                         <a href="@item.Link" class="btn btn-default pull-right" role="button">original site page</a>
                         </p>
                     </div>
                 </div>
             </li>
+            i++;
         }
     }
 </ul>

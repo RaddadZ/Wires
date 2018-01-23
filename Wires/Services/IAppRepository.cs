@@ -8,7 +8,8 @@ namespace Wires.Services
 {
     public interface IAppRepository
     {
-        IEnumerable<Article> GetArticles(int? limit);
+        IEnumerable<Article> GetArticles(int limit);
+        IEnumerable<Article> GetArticles();
         IEnumerable<Article> GetArticlesWithQuizzes();
         Article GetArticle(Guid id);
         Article GetArticleByLink(string link);

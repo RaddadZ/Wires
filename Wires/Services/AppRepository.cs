@@ -68,12 +68,13 @@ namespace Wires.Services
             return _context.Articles.Where(a => a.Link == link).FirstOrDefault();
         }
 
-        public IEnumerable<Article> GetArticles(int? limit)
+        public IEnumerable<Article> GetArticles(int limit)
+        { 
+            return _context.Articles.OrderByDescending(a => a.PublishedDate).Take(limit).ToList();
+        }
+        public IEnumerable<Article> GetArticles()
         {
-            var query = _context.Articles.OrderByDescending(a => a.PublishedDate);
-            if (limit.HasValue)
-                return query.Take(limit.Value).ToList();
-            return query.ToList();
+            return _context.Articles.OrderByDescending(a => a.PublishedDate).ToList();
         }
 
         public IEnumerable<Article> GetArticlesWithQuizzes()

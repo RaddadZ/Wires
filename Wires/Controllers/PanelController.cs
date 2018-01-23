@@ -32,7 +32,8 @@ namespace Wires.Controllers
             
             ViewData["ReturnUrl"] = $"/{RouteData.Values["controller"].ToString()}/{RouteData.Values["action"].ToString()}";
             var b = await UpdateLatesetArticles() > 0;
-            var x = _appRepository.GetArticles(_configuration.GetValue<int>("Defaults:LatestArticlesLimit",5)).ToList();
+            //var x = _appRepository.GetArticles(_configuration.GetValue<int>("Defaults:LatestArticlesLimit",5)).ToList();
+            var x = _appRepository.GetArticles().ToList();
             ListViewModel vm = new ListViewModel()
             {
                 IsUpdated = b,
@@ -45,7 +46,7 @@ namespace Wires.Controllers
         public IActionResult QuizList()
         {
             ViewData["ReturnUrl"] = $"/{RouteData.Values["controller"].ToString()}/{RouteData.Values["action"].ToString()}";
-            List<Quiz> quizList = _appRepository.GetQuizzes().ToList();
+            List<Quiz> quizList = _appRepository.GetQuizzesIncludeArticles().ToList();
             return View(quizList);
         }
 
