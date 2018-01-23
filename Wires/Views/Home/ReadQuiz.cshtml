@@ -18,38 +18,78 @@
     @Html.Raw(@Model.Article.Text)
 </article>
 <hr />
-<div>
-    <form method="post">
+    
+<div id="quiz">
         <h3>Quiz created at: @Model.Quiz.CreatedDate.ToString("dd.MM.yyyy hh:mm tt")</h3>
         <hr />
-        <div class="row">
+    
+        <div id="@Model.Quiz.Id" class="row">
             @for (int i = 0; i < Model.Questions.Count; i++)
             {
-                <div class="col-lg-6">
+                <div id="@Model.Questions[i].Id" class="col-lg-6">
                     <h4>@(i+1)) @Model.Questions[i].Text</h4>
-                    <div class="col-lg-12">
-                        <input asp-for="@Model.Questions[i]" type="radio" value="@Wires.Helpers.AnswerCode.A" /> @Wires.Helpers.AnswerCode.A.GetDisplayName()) @Model.Questions[i].AnswerA
+                    <div class="form-group col-lg-12">
+                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.A) /> @Wires.Helpers.AnswerCode.A.GetDisplayName()) @Model.Questions[i].AnswerA
                     </div>
                     <div class="col-lg-12">
-                        <input asp-for="@Model.Questions[i]" type="radio" value="@Wires.Helpers.AnswerCode.B" /> @Wires.Helpers.AnswerCode.B.GetDisplayName()) @Model.Questions[i].AnswerB
+                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.B)  /> @Wires.Helpers.AnswerCode.B.GetDisplayName()) @Model.Questions[i].AnswerB
                     </div>
                     <div class="col-lg-12">
-                        <input asp-for="@Model.Questions[i]" type="radio" value="@Wires.Helpers.AnswerCode.C" /> @Wires.Helpers.AnswerCode.C.GetDisplayName()) @Model.Questions[i].AnswerC
+                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.C)  /> @Wires.Helpers.AnswerCode.C.GetDisplayName()) @Model.Questions[i].AnswerC
                     </div>
                     <div class="col-lg-12">
-                        <input asp-for="@Model.Questions[i]" type="radio" value="@Wires.Helpers.AnswerCode.D" /> @Wires.Helpers.AnswerCode.D.GetDisplayName()) @Model.Questions[i].AnswerD
+                        <input name="question-@i" type="radio" value=@((int)Wires.Helpers.AnswerCode.D)  /> @Wires.Helpers.AnswerCode.D.GetDisplayName()) @Model.Questions[i].AnswerD
                     </div>
                 </div>
             }
         </div>
         <hr />
         <div class="form-group">
-                <button type="submit" class="btn btn-lg btn-primary">Create Quiz</button>
+            <button onclick="CheckAnswers()" type="submit" class="btn btn-lg btn-primary">Check Answers</button>
         </div>
-
-    </form>
 </div>
 
-@section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial")
+@section scripts{ 
+    <script>
+        function GetQuizResultDto() {
+            var quizId = $("#quiz .row").attr('id');
+            var results = [];
+            $(`#${quizId} > div`).each(function () {
+                results.push({
+                    QuestionId: $(this).attr('id'),
+                    GivenAnswer: $(this).find("input[type='radio']:checked").val()
+                })
+            })
+            var dto = {
+                QuizId: quizId,
+                Results: results
+            };
+            return dto;
+        }
+        function CheckAnswers() {
+            $.ajax({
+                type: 'Post',
+                url: '/api/QuizData/CheckAnswers',
+                data: GetQuizResultDto()
+            }).done(function (res) {
+                //console.log(res);
+                //console.log(res.results);
+                res.results.forEach(function (item, index) {
+                    var wrongOpt = $(`#${item.questionId}`).find(`:radio[value=${item.givenAnswer}]`).parent();
+                    var opt = $(`#${item.questionId}`).find(`:radio[value=${item.rightAnswer}]`).parent();
+                    wrongOpt.css({
+                        "color": "red",
+                        "font-weight": "bold"
+                    });
+                    opt.css({
+                        "color": "green",
+                        "font-weight": "bold"
+                    });
+                    opt.append("*")
+                })
+            }).fail(function (a, b, c) {
+                console.log(c);
+            });
+            }
+    </script>
 }
