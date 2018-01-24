@@ -101,7 +101,9 @@ namespace Wires.Services
                     article.Author = System.Web.HttpUtility.HtmlDecode(node.FindByClass("byline-component__link").InnerText);
                     article.Title = System.Web.HttpUtility.HtmlDecode(node.FindByClass("archive-item-component__title").InnerText);
                     article.Description = System.Web.HttpUtility.HtmlDecode(node.FindByClass("archive-item-component__desc").InnerText);
-                    article.PublishedDate = DateTime.ParseExact(node.FindByTag("time").InnerText, "MMMM dd, yyyy", null, DateTimeStyles.AdjustToUniversal);
+                    article.PublishedDate = DateTime.ParseExact(node.FindByTag("time").InnerText, "MMMM dd, yyyy", 
+                        CultureInfo.GetCultureInfoByIetfLanguageTag("en-US"),
+                        DateTimeStyles.AdjustToUniversal);
                     articles.Add(article);
                     if (articles.Count > _configuration.GetValue<int>("Defaults:LatestArticlesLimit")-1)
                         break;
