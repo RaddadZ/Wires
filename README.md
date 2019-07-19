@@ -1,6 +1,8 @@
 # Wires
 konusrakogren.com test project
 
+merhaba deneme yapýyorum
+
 ## Scenario
 
 ### Registered User
